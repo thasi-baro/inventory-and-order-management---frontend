@@ -1,7 +1,7 @@
 import { useAuthStore } from "@/stores/useAuthStore";
 import React, { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router";
-
+import { Spinner } from "@/components/ui/spinner";
 //Route bảo vệ giúp kiểm tra user đăng nhập chưa, nếu rồi mới cho vào
 const ProtectedRoute = () => {
   const { accessToken, user, loading, refresh, fetchMe } = useAuthStore(); //lấy thông tin từ useAuthStore đã định nghĩa
@@ -31,6 +31,7 @@ const ProtectedRoute = () => {
   if (starting || loading) {
     return (
       <div className="flex h-screen items-center justify-center">
+        <Spinner className="size-6" />
         Đang tải trang...
       </div>
     );

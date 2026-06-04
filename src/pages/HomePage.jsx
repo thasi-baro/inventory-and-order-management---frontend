@@ -1,30 +1,63 @@
-import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/stores/useAuthStore";
-import React from "react";
-import Logout from "@/auth/Logout";
-import { toast } from "sonner";
-import api from "@/lib/axios.js";
-const HomePages = () => {
-  //Chỉ lấy duy nhất trường user trong store tránh việc bị render lại khi component thay đổi
-  const user = useAuthStore((s) => s.user);
-
-  const handleOnClick = async () => {
-    try {
-      await api.get("/users/test", { withCredentials: true });
-      toast.success("ok");
-    } catch (error) {
-      toast.error("loi");
-      console.error(error);
-    }
-  };
+import React, { useState, useMemo } from "react";
+import Sidebar from "@/components/SideBar";
+import DashboardHeader from "@/components/DashBoardHeader";
+import DashboardView from "@/components/DashBoardView";
+import TopHeader from "../components/TopHeader";
+import ProductsView from "@/components/ProductView";
+import OrdersView from "@/components/OrderView.jsx";
+import CreateOrderView from "@/components/CreateOrderView";
+export default function Page() {
+  const [currentTab, setCurrentTab] = useState("dashboard");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div>
-      {user?.username}
-      <Logout />
-      <Button onClick={handleOnClick}>test</Button>
+    <div className="flex min-h-screen bg-white">
+      {/* Sidebar Desktop */}
+      <div className="hidden md:block">
+        <Sidebar activeTab={currentTab} onTabChange={setCurrentTab} />
+      </div>
+
+      {/* Sidebar Mobile */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-50 flex">
+          <div
+            className="fixed inset-0 bg-black/50 transition-opacity"
+            onClick={() => setIsMobileMenuOpen(false)}
+          ></div>
+          <div className="relative z-50 h-full shadow-xl">
+            <Sidebar
+              activeTab={currentTab}
+              onTabChange={(tab) => {
+                setCurrentTab(tab);
+                setIsMobileMenuOpen(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Nội dung chính */}
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        <TopHeader
+          onMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        />
+
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+          {/* TAB DASHBOARD */}
+          {currentTab === "dashboard" && (
+            <>
+              <DashboardHeader />
+              <DashboardView />
+            </>
+          )}
+
+          {/* TAB PRODUCTS */}
+          {currentTab === "products" && <ProductsView />}
+          {/* TAB PRODUCTS */}
+          {currentTab === "create_order" && <CreateOrderView />}
+          {currentTab === "order_list" && <OrdersView />}
+        </main>
+      </div>
     </div>
   );
-};
-
-export default HomePages;
+}

@@ -1,7 +1,7 @@
 import api from "@/lib/axios.js";
 
-//Gọi tới api sign up ở backend
 export const authService = {
+  //Gọi tới api sign up ở backend
   signUp: async (username, email, password) => {
     const res = await api.post(
       "auth/sign-up", //api endpoint

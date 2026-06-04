@@ -3,7 +3,7 @@ import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import HomePage from "./pages/HomePage";
 import { Toaster } from "sonner";
-import ProtectedRoute from "./auth/protectedRoute";
+import ProtectedRoute from "./auth/ProtectedRoute";
 function App() {
   return (
     <>
