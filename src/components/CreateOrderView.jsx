@@ -13,22 +13,21 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { useOrderStore } from "@/stores/useOrderStore";
 
-// ==========================================
-// RÀNG BUỘC ZOD (Giữ nguyên của bạn)
-// ==========================================
+//Ràng buộc khi nhập thông tin khách hàng
 const createUserInfoSchema = z.object({
-  name: z.string().min(1, "Vui lòng nhập tên khách hàng"),
+  name: z.string().min(1, "Vui lòng nhập tên khách hàng"), // ko đc để trống
   phone: z
     .string()
-    .regex(/^[0-9]*$/, "Số điện thoại chỉ được chứa chữ số")
+    .regex(/^[0-9]*$/, "Số điện thoại chỉ được chứa chữ số") // phải nhập số
     .optional(),
-  email: z.string().email("Vui lòng nhập email khách hàng hợp lệ"),
+  email: z.email("Vui lòng nhập email khách hàng hợp lệ"), // ko đc trống và phải là dạng email
 });
 
 export default function CreateOrderView() {
+  // Các biến & STATEs
   const [searchQuery, setSearchQuery] = useState("");
   const [localSearch, setLocalSearch] = useState("");
-
+  // Stores
   const { products, fetchProducts } = useProductStore();
   const {
     cart,
@@ -39,39 +38,37 @@ export default function CreateOrderView() {
     removeFromCart,
     clearCart,
   } = useCartStore();
-
   const { createOrder, loading: isSubmitting } = useOrderStore();
-  // --- DÂY CHUYỀN DEBOUNCE TÌM KIẾM ---
+  //EFFECTs
+  // Timer điếm thời gian để gọi hàm tìm kiếm sau 0.5s user ngừng gõ
   useEffect(() => {
     const timer = setTimeout(() => {
       setSearchQuery(localSearch);
-    }, 500);
+    }, 500); //0.5s
     return () => clearTimeout(timer);
   }, [localSearch]);
 
-  // --- FETCH API THEO TỪ KHÓA ---
+  //Gọi hàm tìm kiếm khi người dùng search và ngưng sau 0.5s
   useEffect(() => {
     fetchProducts(1, 20, searchQuery, "ALL");
   }, [searchQuery, fetchProducts]);
-
-  // --- TÍNH TỔNG TIỀN ---
+  //CÁC HÀM XỬ LÝ
+  // Tính tổng tiền ở frontend (ko gửi xuống be)
   const totalAmount = cart.reduce(
     (total, item) => total + item.price * item.quantity,
     0,
   );
 
-  // ==========================================
-  // HÀM CHỐT ĐƠN & KIỂM TRA ZOD
-  // ==========================================
+  //Xử lí khi bấm tạo đơn hàng
   const handleCheckout = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); //ngăn web tự load lại trang
 
-    // 1. Kiểm tra giỏ hàng
+    // Kiểm tra giỏ hàng
     if (cart.length === 0) {
       return toast.error("Vui lòng chọn ít nhất 1 sản phẩm!");
     }
 
-    // 2. DÙNG ZOD ĐỂ KIỂM TRA DỮ LIỆU CUSTOMER
+    //Validate thông tin khách hàng được nhập bằng safeParse
     const validation = createUserInfoSchema.safeParse(customer);
 
     if (!validation.success) {
@@ -79,10 +76,11 @@ export default function CreateOrderView() {
       validation.error.issues.forEach((issue) => {
         toast.error(issue.message);
       });
-      return; // Dừng lại, không cho chạy tiếp xuống Backend
+      return; // Dừng lại
     }
 
     try {
+      //Format dữ liệu trước khi đưa xuống be
       const data = {
         customerInfo: customer,
         items: cart.map((item) => ({
@@ -92,8 +90,10 @@ export default function CreateOrderView() {
         })),
       };
 
+      //Gọi hàm tạo đơn hàng với dữ liệu vừa formatted
       const res = await createOrder(data);
       if (res) {
+        //Thành công thì cập nhật lại trang để có dữ liueej mới nhất và xóa giỏ hàng để nhập tiếp cho khách hàng kế tiếp
         fetchProducts(1, 20, searchQuery, "ALL");
         clearCart();
       }
@@ -105,9 +105,7 @@ export default function CreateOrderView() {
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-100px)]">
-      {/* ========================================== */}
-      {/* CỘT TRÁI: DANH SÁCH SẢN PHẨM               */}
-      {/* ========================================== */}
+      {/* Danh sách sản phẩm */}
       <div className="w-full lg:w-[65%] flex flex-col gap-4">
         {/* Thanh tìm kiếm */}
         <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3">
@@ -136,7 +134,7 @@ export default function CreateOrderView() {
                     <img
                       src={product.image_url}
                       alt={product.name}
-                      className="h-full object-contain mix-blend-multiply"
+                      className="h-full object-cover mix-blend-multiply"
                     />
                   ) : (
                     <Package className="w-10 h-10 text-gray-300" />
@@ -169,10 +167,7 @@ export default function CreateOrderView() {
           </div>
         </div>
       </div>
-
-      {/* ========================================== */}
-      {/* CỘT PHẢI: GIỎ HÀNG & THÔNG TIN KHÁCH       */}
-      {/* ========================================== */}
+      {/* Giỏ hàng & thông tin khách hàng */}
       <div className="w-full lg:w-[35%]">
         <div className="sticky top-0 bg-white border border-gray-200 rounded-2xl shadow-sm flex flex-col h-full max-h-full overflow-hidden">
           <div className="p-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
@@ -203,7 +198,7 @@ export default function CreateOrderView() {
                       <img
                         src={item.image_url}
                         alt="img"
-                        className="h-full w-full object-contain mix-blend-multiply"
+                        className="h-full w-full object-cover p-1 mix-blend-multiply"
                       />
                     ) : (
                       <Package className="w-6 h-6 text-gray-300" />
@@ -242,7 +237,6 @@ export default function CreateOrderView() {
                         </button>
                       </div>
 
-                      {/* Nút Thùng Rác chuẩn form Hộp vuông */}
                       <button
                         onClick={() => removeFromCart(item._id)}
                         className="h-7 w-7 flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors border border-transparent hover:border-red-100"
@@ -261,7 +255,7 @@ export default function CreateOrderView() {
             )}
           </div>
 
-          {/* Form thông tin khách & Nút Chốt */}
+          {/* Form thông tin khách & Button đặt hàng */}
           <div className="border-t border-gray-200 bg-gray-50 p-4">
             <form onSubmit={handleCheckout} className="space-y-4">
               <div className="space-y-3">
@@ -272,7 +266,6 @@ export default function CreateOrderView() {
                   <input
                     type="text"
                     placeholder="Tên khách *"
-                    // CHỈ DÙNG VALUE TỪ STORE, KHÔNG DÙNG {...register}
                     value={customer.name}
                     onChange={(e) =>
                       setCustomer({ ...customer, name: e.target.value })
@@ -280,7 +273,7 @@ export default function CreateOrderView() {
                     className="w-full text-sm border border-gray-200 rounded-md px-3 py-2 outline-none focus:border-black focus:ring-1 focus:ring-black"
                   />
                   <input
-                    type="tel" // Đổi thành type="tel" để hiện bàn phím số trên điện thoại
+                    type="tel"
                     placeholder="Số điện thoại"
                     value={customer.phone}
                     onChange={(e) =>

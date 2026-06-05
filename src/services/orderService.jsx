@@ -42,4 +42,11 @@ export const orderService = {
     );
     return res.data;
   },
+
+  //Lấy dữ liệu thống kê
+  getStats: async () => {
+    const res = await api.get("orders/stats", { withCredentials: true });
+
+    return res.data;
+  },
 };

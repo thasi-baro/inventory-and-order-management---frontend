@@ -1,15 +1,14 @@
 import React, { useState, useMemo } from "react";
 import Sidebar from "@/components/SideBar";
-import DashboardHeader from "@/components/DashBoardHeader";
 import DashboardView from "@/components/DashBoardView";
 import TopHeader from "../components/TopHeader";
 import ProductsView from "@/components/ProductView";
 import OrdersView from "@/components/OrderView.jsx";
 import CreateOrderView from "@/components/CreateOrderView";
-export default function Page() {
-  const [currentTab, setCurrentTab] = useState("dashboard");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+export default function Page() {
+  const [currentTab, setCurrentTab] = useState("dashboard"); // lấy tab hiện tại để thực hiện chuyển tab
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // quản lý đóng mở sidebar trên điện thoại
   return (
     <div className="flex min-h-screen bg-white">
       {/* Sidebar Desktop */}
@@ -44,13 +43,7 @@ export default function Page() {
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           {/* TAB DASHBOARD */}
-          {currentTab === "dashboard" && (
-            <>
-              <DashboardHeader />
-              <DashboardView />
-            </>
-          )}
-
+          {currentTab === "dashboard" && <DashboardView />}
           {/* TAB PRODUCTS */}
           {currentTab === "products" && <ProductsView />}
           {/* TAB PRODUCTS */}

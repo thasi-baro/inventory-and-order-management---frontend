@@ -5,8 +5,18 @@ import { orderService } from "@/services/orderService";
 export const useOrderStore = create((set, get) => ({
   loading: false,
   error: null,
+  //Trang orders
   orders: [],
   pagination: null,
+  //Trang dashboard
+  totalOrders: 0,
+  totalProducts: 0,
+  thisMonthRevenue: 0,
+  percentage: 0,
+  revenueOverTime: null,
+  orderStatusBreakdown: null,
+  topProducts: null,
+  inventoryHealth: null,
   //Tạo đơn hàng
   createOrder: async (data) => {
     set({ loading: true });
@@ -66,6 +76,41 @@ export const useOrderStore = create((set, get) => ({
       console.error("Lỗi khi cập nhật trạng thái đơn hàng:", error);
       const errorMessage =
         error.response?.data?.message || "Lỗi khi cập nhật trạng thái đơn hàng";
+      set({
+        error: errorMessage,
+      });
+      toast.error(errorMessage);
+      return { success: false };
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  //Lấy dữ liệu thống kê
+  getStats: async () => {
+    set({ loading: true, error: null });
+    try {
+      const response = await orderService.getStats();
+
+      if (response.success) {
+        const stats = response.data;
+
+        set({
+          totalOrders: stats.totalOrders,
+          totalProducts: stats.totalProducts,
+          thisMonthRevenue: stats.thisMonthRevenue,
+          percentage: stats.percentage,
+          revenueOverTime: stats.revenueOverTime,
+          orderStatusBreakdown: stats.orderStatusBreakdown,
+          topProducts: stats.topProducts,
+          inventoryHealth: stats.inventoryHealth,
+        });
+      }
+      return { success: true };
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu thống kê:", error);
+      const errorMessage =
+        error.response?.data?.message || "Lỗi khi lấy dữ liệu thống kê";
       set({
         error: errorMessage,
       });

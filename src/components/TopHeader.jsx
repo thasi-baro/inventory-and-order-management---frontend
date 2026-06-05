@@ -1,41 +1,86 @@
 import React, { useState } from "react";
-import { Menu, LogOut, User } from "lucide-react";
+import {
+  Menu,
+  LogOut,
+  User,
+  Settings as SettingsIcon,
+  Loader2,
+  Save,
+} from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useNavigate } from "react-router";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "../components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "./ui/button";
+import { toast } from "sonner";
+
 export default function TopHeader({ onMenuToggle }) {
-  // State quản lý việc ẩn/hiện menu dropdown khi bấm vào avatar
+  // --- STATES ---
   const [showDropdown, setShowDropdown] = useState(false);
-  // Lấy user từ authStore
-  const user = useAuthStore((state) => state.user);
-  //Gọi sign out từ authStore
-  const { signOut } = useAuthStore();
-  const navigate = useNavigate(); //sign out xong chuyển về trang sign in
-  //Hàm xử lý sign out
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      navigate("/sign-in"); //về trang đăng nhập
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  // Ảnh mặc định cho user
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // State lưu trữ dữ liệu khi đang gõ
+  const [editUsername, setEditUsername] = useState("");
+  const [editThreshold, setEditThreshold] = useState(10);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // --- STORES & ROUTING ---
+  const { user, signOut, updateUserSetting } = useAuthStore();
+  const navigate = useNavigate();
+
   const DEFAULT_AVATAR =
     "https://api.dicebear.com/7.x/avataaars/svg?seed=default";
 
-  // Chuẩn bị thông tin user để hiển thị
+  // Lấy dữ liệu user hiện tại
   const currentUser = {
     name: user?.username || "Guest User",
     email: user?.email || "user@example.com",
-    avatar: DEFAULT_AVATAR, // Luôn dùng ảnh mặc định
+    avatar: DEFAULT_AVATAR,
+    threshold: user?.lowStockThreshold || 10,
+  };
+
+  // --- HANDLERS ---
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate("/sign-in");
+    } catch (error) {
+      console.error("Lỗi đăng xuất:", error);
+    }
+  };
+
+  const handleOpenSettings = () => {
+    setEditUsername(currentUser.name);
+    setEditThreshold(currentUser.threshold);
+    setIsSettingsOpen(true);
+    setShowDropdown(false);
+  };
+
+  const handleSaveSettings = async () => {
+    try {
+      setIsSaving(true);
+      await updateUserSetting(editUsername, Number(editThreshold));
+      toast.success("Cập nhật thành công");
+      setIsSettingsOpen(false);
+    } catch (error) {
+      toast.error("Cập nhật thất bại");
+      console.error("Lỗi khi lưu cài đặt:", error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-20">
       <div className="flex items-center justify-between px-4 sm:px-6 py-3">
-        {/* Nửa bên trái: Nút Menu (Mobile) & Tiêu đề */}
         <div className="flex items-center gap-4">
-          {/* Nút Hamburger menu chỉ hiện trên mobile để mở Sidebar */}
           <button
             onClick={onMenuToggle}
             className="md:hidden p-1.5 text-gray-500 hover:bg-gray-100 rounded-md transition-colors focus:outline-none"
@@ -44,17 +89,15 @@ export default function TopHeader({ onMenuToggle }) {
           </button>
 
           <h1 className="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
-            Inventory Management
+            Quản lý đơn hàng và sản phẩm
           </h1>
         </div>
 
-        {/* Nửa bên phải: User Profile & Dropdown */}
         <div className="relative">
           <button
             onClick={() => setShowDropdown(!showDropdown)}
             className="flex items-center gap-3 hover:bg-gray-50 p-1.5 pr-2 rounded-lg transition-colors cursor-pointer border border-transparent hover:border-gray-100"
           >
-            {/* Cụm Text Info - Dùng hidden sm:flex để ẨN trên điện thoại, HIỆN trên tablet/PC */}
             <div className="hidden sm:flex flex-col text-right">
               <span className="text-sm font-bold text-gray-900 leading-none mb-1">
                 {currentUser.name}
@@ -64,7 +107,6 @@ export default function TopHeader({ onMenuToggle }) {
               </span>
             </div>
 
-            {/* Avatar */}
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gray-200 border border-gray-300 overflow-hidden shrink-0 flex items-center justify-center">
               {currentUser.avatar ? (
                 <img
@@ -78,10 +120,9 @@ export default function TopHeader({ onMenuToggle }) {
             </div>
           </button>
 
-          {/* Hộp Dropdown Menu (Hiển thị khi click) */}
+          {/* Hộp Dropdown Menu */}
           {showDropdown && (
             <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg py-1 z-30">
-              {/* Phần text info dự phòng cho Mobile (khi ở ngoài nó bị ẩn thì vào trong dropdown sẽ thấy) */}
               <div className="sm:hidden px-4 py-3 border-b border-gray-100">
                 <p className="text-sm font-bold text-gray-900">
                   {currentUser.name}
@@ -91,9 +132,12 @@ export default function TopHeader({ onMenuToggle }) {
                 </p>
               </div>
 
-              <button className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 w-full text-left transition-colors">
-                <User className="w-4 h-4 text-gray-500" />
-                <span className="font-medium">Profile Settings</span>
+              <button
+                onClick={handleOpenSettings}
+                className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 w-full text-left transition-colors"
+              >
+                <SettingsIcon className="w-4 h-4" />
+                <span className="font-medium">Cài đặt</span>
               </button>
 
               <div className="h-px bg-gray-100 my-1"></div>
@@ -103,10 +147,73 @@ export default function TopHeader({ onMenuToggle }) {
                 className="flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 w-full text-left transition-colors"
               >
                 <LogOut className="w-4 h-4" />
-                <span className="font-medium">Log out</span>
+                <span className="font-medium">Đăng xuất</span>
               </button>
             </div>
           )}
+
+          {/* HỘP THOẠI CÀI ĐẶT TÀI KHOẢN */}
+          <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+            <DialogContent className="sm:max-w-[400px]">
+              <DialogHeader>
+                <DialogTitle>Cài đặt tài khoản</DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-4 py-4">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="username">Tên người dùng</Label>
+                  <Input
+                    id="username"
+                    value={editUsername}
+                    onChange={(e) => setEditUsername(e.target.value)}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="threshold">
+                    Ngưỡng cảnh báo sắp hết hàng
+                  </Label>
+                  <Input
+                    id="threshold"
+                    type="number"
+                    min="1"
+                    value={editThreshold}
+                    onChange={(e) => setEditThreshold(e.target.value)}
+                  />
+                  <p className="text-xs text-gray-500">
+                    Hệ thống sẽ báo vàng nếu tồn kho dưới con số này.
+                  </p>
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsSettingsOpen(false)}
+                  disabled={isSaving}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  onClick={handleSaveSettings}
+                  className="bg-black text-white min-w-[120px]"
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Đang lưu...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2" />
+                      Lưu cài đặt
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </header>

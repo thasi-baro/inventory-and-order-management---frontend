@@ -6,7 +6,8 @@ export const useAuthStore = create((set, get) => ({
   accessToken: null,
   user: null,
   loading: false,
-
+  lowStockThreshold: 10,
+  username: "",
   setAccessToken: (accessToken) => {
     set({ accessToken });
   },
@@ -130,6 +131,24 @@ export const useAuthStore = create((set, get) => ({
       toast.error("Phiên đăng nhập đã hết hạn.Vui lòng đăng nhập lại");
       get().clearState();
     } finally {
+      set({ loading: false });
+    }
+  },
+
+  //Cập nhật username và threshold cảnh báo hết hàng
+  updateUserSetting: async (username, lowStockThreshold) => {
+    try {
+      const res = await authService.updateUser(username, lowStockThreshold);
+
+      set((state) => ({
+        user: {
+          ...state.user,
+          username: res.user.username,
+          lowStockThreshold: res.user.lowStockThreshold,
+        },
+      }));
+    } catch (error) {
+      console.error("Lỗi update user:", error);
       set({ loading: false });
     }
   },

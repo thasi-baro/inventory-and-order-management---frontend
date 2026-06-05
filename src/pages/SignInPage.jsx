@@ -1,12 +1,22 @@
 import React from "react";
 import { SignInForm } from "@/auth/signin-form";
-const SignUpPage = () => {
+
+const SignInPage = () => {
   return (
-    <div className="relative z-10 flex min-h-svh flex-col items-center justify-center p-6 md:p-10 absolute inset-0 z-0 bg-gradient-purple">
-      <div className="w-full max-w-sm md:max-w-4xl">
+    <div className="relative flex min-h-screen w-full flex-col items-center justify-center p-6 md:p-10 overflow-hidden">
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(125% 125% at 50% 90%, #fff 40%, #475569 100%)",
+        }}
+      />
+
+      <div className="relative z-10 w-full max-w-sm md:max-w-4xl">
         <SignInForm />
       </div>
     </div>
   );
 };
-export default SignUpPage;
+
+export default SignInPage;

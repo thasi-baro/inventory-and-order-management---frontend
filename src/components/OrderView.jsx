@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Search,
-  Plus,
-  Filter,
-  Calendar,
-  MoreVertical,
-  CheckCircle,
-  XCircle,
-} from "lucide-react";
+import { MoreVertical, CheckCircle, XCircle } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,28 +38,22 @@ import {
 import { useOrderStore } from "@/stores/useOrderStore";
 
 export default function OrdersView() {
-  const [statusFilter, setStatusFilter] = useState("ALL");
-  const [page, setPage] = useState(1);
-  const limit = 5;
-
-  const [cancelOrderId, setCancelOrderId] = useState(null);
-
-  // Kéo dữ liệu và hàm xử lý từ Store
+  //STATEs & BIẾN
+  const [statusFilter, setStatusFilter] = useState("ALL"); //Trạng thái mặc định
+  const [page, setPage] = useState(1); //quản lí page hiện tại
+  const limit = 5; //5 sản phẩm mỗi trang
+  const [cancelOrderId, setCancelOrderId] = useState(null); //Id order muốn xóa
+  //STOREs
   const { orders, pagination, fetchOrders, updateStatus } = useOrderStore();
-
+  //EFFECTs
   useEffect(() => {
     fetchOrders(page, limit, statusFilter);
   }, [page, limit, statusFilter, fetchOrders]);
-
-  // ==========================================
-  // CÁC HÀM XỬ LÝ HIỂN THỊ DỮ LIỆU
-  // ==========================================
-
-  // 1. Render Status Badge
+  //Các hàm xử lý
+  // Xử lí dữ liệu Status Badge hiển thị màu UI
   const renderStatus = (status) => {
     const statusConfig = {
       pending: {
-        // Đổi từ sky sang amber cho màu vàng chuẩn form
         color:
           "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
         text: "Pending",
@@ -86,8 +72,8 @@ export default function OrdersView() {
 
     return <Badge className={current.color}>{current.text}</Badge>;
   };
-  console.log(orders);
-  // 2. Format Ngày tháng từ MongoDB
+
+  // Format Ngày tháng từ MongoDB
   const formatDate = (dateString) => {
     if (!dateString) return "";
     return new Date(dateString).toLocaleDateString("vi-VN", {
@@ -99,19 +85,7 @@ export default function OrdersView() {
     });
   };
 
-  // 3. Nối mảng Items thành chuỗi (VD: "2x Tivi, 1x Tủ lạnh")
-  const renderItemsSummary = (items) => {
-    if (!items || items.length === 0) return "Trống";
-    // Map qua mảng items, lấy số lượng ghép với tên sản phẩm (nếu product bị xóa thì để mặc định)
-    const summary = items.map(
-      (item) => `${item.quantity}x ${item.product?.name || "Sản phẩm ẩn"}`,
-    );
-    return summary.join(", "); // Nối bằng dấu phẩy
-  };
-
-  // ==========================================
-  // XỬ LÝ ĐỔI TRẠNG THÁI ĐƠN HÀNG
-  // ==========================================
+  //Xử lý đổi trạng thái đơn hàng
   const handleUpdateStatus = async (orderId, newStatus) => {
     // Gọi hàm update từ Store
     const res = await updateStatus(orderId, newStatus);
@@ -142,8 +116,8 @@ export default function OrdersView() {
             value={statusFilter}
             onValueChange={(val) => {
               setStatusFilter(val);
-              setPage(1);
-            }} // Nhớ set lại trang 1 khi đổi bộ lọc
+              setPage(1); //Luôn gọi trang đầu tiên
+            }}
           >
             <SelectTrigger className="w-full bg-gray-50 border-gray-200 focus:ring-black">
               <SelectValue placeholder="All Statuses" />
@@ -160,28 +134,30 @@ export default function OrdersView() {
 
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col">
         <div className="overflow-x-auto">
-          <table className="min-w-[900px] w-full divide-y divide-gray-200">
+          <table className="min-w-[1000px] w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-1/6">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-[12%]">
                   Mã đơn hàng
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-1/6">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-[12%]">
                   Ngày tạo
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-2/6">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-[16%]">
                   Tên khách hàng
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-2/6">
+
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-auto">
                   Tóm tắt đơn hàng
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase w-1/6">
+
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase w-[12%]">
                   Tổng tiền
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-1/6 pl-10">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-[10%] pl-6">
                   Trạng thái
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase w-16">
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase w-[5%]">
                   Thao tác
                 </th>
               </tr>
@@ -193,19 +169,22 @@ export default function OrdersView() {
                   key={order._id}
                   className="hover:bg-gray-50 transition-colors"
                 >
-                  {/* Nếu schema có orderCode thì dùng, không thì lấy 8 số cuối của _id làm mã */}
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  {/* Cột Mã Đơn Hàng  */}
+                  <td className="px-4 py-4 whitespace-nowrap align-middle">
                     <span className="text-sm font-bold text-gray-900">
                       {order.orderCode}
                     </span>
                   </td>
 
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  {/* Cột Ngày Tạo */}
+                  <td className="px-4 py-4 whitespace-nowrap align-middle">
                     <span className="text-sm text-gray-500">
                       {formatDate(order.createdAt)}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
+
+                  {/* Cột Khách Hàng */}
+                  <td className="px-4 py-4 align-middle">
                     <div className="flex flex-col">
                       <span className="text-sm font-bold text-gray-900">
                         {order.customerInfo?.name || ""}
@@ -215,26 +194,39 @@ export default function OrdersView() {
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className="text-sm text-gray-600 line-clamp-1"
-                      title={renderItemsSummary(order.items)}
-                    >
-                      {renderItemsSummary(order.items)}
-                    </span>
+
+                  {/* Cột Tóm Tắt Đơn Hàng */}
+                  <td className="px-4 py-4 align-middle">
+                    <div className="flex flex-col gap-1 text-sm text-gray-600">
+                      {order.items?.length > 0 ? (
+                        order.items.map((item, idx) => (
+                          <span key={idx}>
+                            <span className="font-medium text-gray-800">
+                              {item.quantity}x
+                            </span>{" "}
+                            {item.product?.name || "Sản phẩm ẩn"}
+                          </span>
+                        ))
+                      ) : (
+                        <span>Trống</span>
+                      )}
+                    </div>
                   </td>
 
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                  {/* Cột Tổng Tiền */}
+                  <td className="px-4 py-4 whitespace-nowrap text-right align-middle">
                     <span className="text-sm font-mono font-bold text-gray-900">
                       {order.total_amount?.toLocaleString()}đ
                     </span>
                   </td>
 
-                  <td className="px-6 py-4 whitespace-nowrap pl-10">
+                  {/* Cột Trạng Thái */}
+                  <td className="px-4 py-4 whitespace-nowrap pl-6 align-middle">
                     {renderStatus(order.status)}
                   </td>
 
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                  {/* Cột Thao Tác */}
+                  <td className="px-4 py-4 whitespace-nowrap text-right align-middle">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button className="p-1.5 text-gray-400 hover:text-black hover:bg-gray-100 rounded transition-colors">
@@ -274,8 +266,8 @@ export default function OrdersView() {
               {(!orders || orders.length === 0) && (
                 <tr>
                   <td
-                    colSpan="6"
-                    className="px-6 py-10 text-center text-gray-500"
+                    colSpan="7"
+                    className="px-4 py-10 text-center text-gray-500"
                   >
                     Không tìm thấy đơn hàng nào.
                   </td>
@@ -285,9 +277,6 @@ export default function OrdersView() {
           </table>
         </div>
 
-        {/* ==========================================
-            PHÂN TRANG DYNAMIC (Lấy từ BE)
-            ========================================== */}
         {pagination?.totalPages > 0 && (
           <div className="bg-gray-50 px-6 py-3 border-t border-gray-200 flex items-center justify-between">
             <div className="hidden md:block">
@@ -345,13 +334,12 @@ export default function OrdersView() {
           </div>
         )}
       </div>
-
-      {/* HỘP THOẠI XÁC NHẬN HỦY */}
+      {/* Xác nhận hủy */}
       <AlertDialog
         open={!!cancelOrderId}
         onOpenChange={(isOpen) => !isOpen && setCancelOrderId(null)}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-sm">
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận hủy đơn hàng này?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -365,9 +353,11 @@ export default function OrdersView() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Quay lại</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-sm">
+              Quay lại
+            </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-600 hover:bg-red-700 rounded-sm"
               onClick={() => handleUpdateStatus(cancelOrderId, "cancelled")}
             >
               Xác nhận Hủy

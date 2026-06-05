@@ -5,13 +5,13 @@ import {
   ShoppingCart,
   ChevronDown,
   ChevronRight,
-  PlusCircle, // Bổ sung icon cho menu con
-  ListOrdered, // Bổ sung icon cho menu con
+  PlusCircle,
   ClipboardList,
 } from "lucide-react";
 
 export default function Sidebar({ activeTab = "dashboard", onTabChange }) {
-  // 1. STATE QUẢN LÝ ĐÓNG/MỞ MENU CHA
+  //mặc định vào trang dashboard
+  //State  quản lý đóng mở
   const [openMenus, setOpenMenus] = useState({ orders: true });
 
   // Hàm đảo trạng thái đóng/mở
@@ -19,7 +19,7 @@ export default function Sidebar({ activeTab = "dashboard", onTabChange }) {
     setOpenMenus((prev) => ({ ...prev, [menuId]: !prev[menuId] }));
   };
 
-  // 2. CẤU TRÚC DỮ LIỆU ĐƯỢC NÂNG CẤP (Thêm mảng subItems)
+  // Cấu trúc các trang và tên trang
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutGrid },
     { id: "products", label: "Sản phẩm", icon: Package },
@@ -27,7 +27,7 @@ export default function Sidebar({ activeTab = "dashboard", onTabChange }) {
       id: "orders",
       label: "Đơn hàng",
       icon: ShoppingCart,
-      // Thêm mảng menu con
+      //Order có 2 trang con
       subItems: [
         { id: "create_order", label: "Tạo đơn hàng", icon: PlusCircle },
         { id: "order_list", label: "Chi tiết đơn hàng", icon: ClipboardList },
@@ -37,14 +37,13 @@ export default function Sidebar({ activeTab = "dashboard", onTabChange }) {
 
   return (
     <aside className="w-56 h-screen bg-[#F8F9FA] border-r border-gray-200 flex flex-col">
-      {/* Khối Logo & Tên cửa hàng (Giữ nguyên của bạn) */}
       <div className="flex items-center gap-3 px-6 py-8">
         <div className="w-10 h-10 bg-black text-white flex items-center justify-center rounded-lg font-bold text-xl">
           E
         </div>
         <div className="flex flex-col">
           <h2 className="text-[17px] font-bold text-gray-900 leading-tight">
-            ElectroStock
+            E Store
           </h2>
           <span className="text-[11px] text-gray-500 font-medium">
             Enterprise v1.0
@@ -67,7 +66,6 @@ export default function Sidebar({ activeTab = "dashboard", onTabChange }) {
 
           return (
             <div key={item.id}>
-              {/* 1. RENDER MENU CHA */}
               <button
                 // Nếu có menu con thì bấm vào là Tắt/Mở, nếu không có thì là Đổi Tab
                 onClick={() =>
@@ -87,7 +85,6 @@ export default function Sidebar({ activeTab = "dashboard", onTabChange }) {
                 />
                 <span className="text-sm flex-1">{item.label}</span>
 
-                {/* Hiện mũi tên xổ xuống nếu có menu con */}
                 {hasSubItems && (
                   <span className="text-gray-400">
                     {openMenus[item.id] ? (

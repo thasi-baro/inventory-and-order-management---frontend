@@ -1,6 +1,3 @@
-// ==========================================
-// 1. IMPORTS
-// ==========================================
 import React, { useState, useEffect } from "react";
 import { set, z } from "zod";
 import { useForm } from "react-hook-form";
@@ -13,17 +10,15 @@ import {
   Edit,
   Trash2,
   Filter,
+  X,
 } from "lucide-react";
-
-// Stores
-import { useProductStore } from "@/stores/useProductStore";
 
 // UI Components
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Field } from "@/components/ui/field";
 import {
   Dialog,
   DialogClose,
@@ -32,7 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Trash2Icon } from "lucide-react";
+import { Trash2Icon, Save, Loader2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -61,9 +56,10 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-// ==========================================
-// 2. SCHEMAS (Ràng buộc dữ liệu đầu vào)
-// ==========================================
+// Stores
+import { useProductStore } from "@/stores/useProductStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+//Ràng buộc khi nhập tạo/ sửa dữ liệu sản phẩm
 const createProductSchema = z.object({
   name: z.string().min(1, "Vui lòng nhập tên sản phẩm"),
   description: z.string().optional(), //không bắt buộc
@@ -79,21 +75,13 @@ const createProductSchema = z.object({
     .pipe(z.coerce.number().min(0, "Số lượng không được âm")),
 });
 
-// ==========================================
-// 3. COMPONENT CHÍNH
-// ==========================================
 export default function ProductsView() {
-  // --- STORES & STATES ---
-  //State lưu ảnh user chọn
-  const [selectedImage, setSelectedImage] = useState(null);
-  // State quản lý đóng/mở Dialog add vaf edit
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  // State quản lý đóng/mở Dialog delete
-  const [isDialogOpenDelete, setIsDialogOpenDelete] = useState(false);
-  // Quản lý nút edit
-  const [editing, setEditing] = useState(null);
-  //Id sản phẩm cần xóa
-  const [deletedProductId, setDeletedProductId] = useState(null);
+  //STATEs
+  const [selectedImage, setSelectedImage] = useState(null); //State lưu ảnh user chọn
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // State quản lý đóng/mở Dialog add vaf edit
+  const [isDialogOpenDelete, setIsDialogOpenDelete] = useState(false); // State quản lý đóng/mở Dialog delete
+  const [editing, setEditing] = useState(null); // Quản lý nút edit
+  const [deletedProductId, setDeletedProductId] = useState(null); //Id sản phẩm cần xóa
   //State lọc & tìm kiếm
   const [localSearch, setLocalSearch] = useState(""); // Chữ đang gõ trong ô input
   const [searchQuery, setSearchQuery] = useState(""); // Chữ chính thức đem đi tìm kiếm (khi bấm Enter)
@@ -103,13 +91,13 @@ export default function ProductsView() {
   const [localFromPrice, setLocalFromPrice] = useState("");
   const [localToPrice, setLocalToPrice] = useState("");
   const [fromPrice, setFromPrice] = useState(0);
-  const [toPrice, setToPrice] = useState(1000000000);
+  const [toPrice, setToPrice] = useState(1000000000); //Mặc định giá cao nhất 1 tỷ để hiển thị toàn bộ sản phẩm
 
-  //Biến & hàm lấy từ product store
+  //STOREs
   const {
     //Biến
-    totalProducts: storeTotal,
-    lowStockCount: storeLowStock,
+    totalProducts,
+    lowStockCount,
     pagination,
     products,
     //Hàm
@@ -120,16 +108,20 @@ export default function ProductsView() {
     fetchTotalAndLowStock,
   } = useProductStore();
 
+  //Lấy ngưỡng mà user tùy chỉnhconst
+  const { user } = useAuthStore();
+  const lowStockThreshold = user?.lowStockThreshold || 10;
+  //Ràng buộc
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(createProductSchema),
   });
 
-  // --- EFFECTS ---
+  //EFFECTs
   // Tự động lấy thống kê khi load trang
   useEffect(() => {
     //Api thống kê
@@ -145,6 +137,7 @@ export default function ProductsView() {
     toPrice,
     fetchTotalAndLowStock,
     fetchProducts,
+    lowStockThreshold,
   ]);
 
   useEffect(() => {
@@ -157,6 +150,7 @@ export default function ProductsView() {
     return () => clearTimeout(timer);
   }, [localSearch]); //Chạy lại khi input thay đổi
 
+  //CÁC HÀM XỬ LÝ
   //Lọc theo giá
   const handleApplyPriceFilter = () => {
     setFromPrice(localFromPrice);
@@ -194,7 +188,6 @@ export default function ProductsView() {
   // Xử lý Thêm/Sửa sản phẩm
   const onSubmit = async (data) => {
     let res;
-    console.log(editing);
     if (editing) {
       //Nếu là edit thì gán các giá trị vô để hiển thị
       res = await updateProduct(
@@ -238,12 +231,6 @@ export default function ProductsView() {
       setIsDialogOpenDelete(false);
     }
   };
-  // Xử lý Tìm kiếm
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    setSearchQuery(localSearch);
-    setPage(1);
-  };
 
   // Xử lý Bộ lọc (Filter)
   const handleFilterChange = (value) => {
@@ -278,7 +265,7 @@ export default function ProductsView() {
 
   return (
     <div className="space-y-6">
-      {/* KHỐI THỐNG KÊ */}
+      {/* Khối thống kê */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
           <div className="flex justify-between items-start">
@@ -287,7 +274,7 @@ export default function ProductsView() {
                 Tổng sản phẩm hiện có
               </p>
               <h3 className="text-4xl font-extrabold text-gray-900 mt-2">
-                {storeTotal}
+                {totalProducts}
               </h3>
             </div>
             <Package className="w-5 h-5 text-gray-400" />
@@ -301,7 +288,7 @@ export default function ProductsView() {
                 Sản phẩm tồn kho sắp hết
               </p>
               <h3 className="text-4xl font-extrabold text-gray-900 mt-2 flex items-baseline gap-2">
-                {storeLowStock}
+                {lowStockCount}
                 <span className="text-sm font-normal text-gray-500 tracking-normal">
                   sản phẩm cần chú ý
                 </span>
@@ -311,8 +298,7 @@ export default function ProductsView() {
           </div>
         </div>
       </div>
-
-      {/* THANH CÔNG CỤ (TÌM KIẾM, LỌC, THÊM SP) */}
+      {/* Thanh công cụ (tìm kiếm lọc & thêm sản phẩm) */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           {/* Ô Tìm kiếm */}
@@ -321,37 +307,46 @@ export default function ProductsView() {
               type="search"
               placeholder="Nhập tên sản phẩm..."
               value={localSearch}
-              onChange={(e) => setLocalSearch(e.target.value)} //Gán giá trị lên ô input
+              onChange={(e) => setLocalSearch(e.target.value)}
             />
           </Field>
 
-          {/* Ô Lọc trạng thái */}
-          <div className="relative w-full sm:w-48">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-              <Filter className="h-4 w-4 text-gray-400" />
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <span className="text-sm font-medium text-gray-700 hidden sm:block whitespace-nowrap">
+              Lọc theo trạng thái:
+            </span>
+
+            <div className="relative w-full sm:w-48">
+              {/* Icon Filter */}
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                <Filter className="h-4 w-4 text-gray-400" />
+              </div>
+
+              {/* Select Dropdown */}
+              <Select onValueChange={handleFilterChange} value={statusFilter}>
+                <SelectTrigger className="w-full pl-9 bg-gray-50 border-gray-200">
+                  <SelectValue placeholder="Tất cả trạng thái" />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectItem value="ALL" className="cursor-pointer">
+                    Tất cả trạng thái
+                  </SelectItem>
+                  <SelectItem value="IN_STOCK" className="cursor-pointer">
+                    Còn hàng (&gt; {lowStockThreshold})
+                  </SelectItem>
+                  <SelectItem value="LOW_STOCK" className="cursor-pointer">
+                    Sắp hết (&lt; {lowStockThreshold})
+                  </SelectItem>
+                  <SelectItem
+                    value="OUT_OF_STOCK"
+                    className="cursor-pointer text-red-600 focus:text-red-700"
+                  >
+                    Hết hàng (0)
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <Select onValueChange={handleFilterChange} value={statusFilter}>
-              <SelectTrigger className="w-full pl-9 bg-gray-50 border-gray-200 focus:ring-2 focus:ring-black focus:ring-offset-0 transition-colors">
-                <SelectValue placeholder="Tất cả trạng thái" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL" className="cursor-pointer">
-                  Tất cả trạng thái
-                </SelectItem>
-                <SelectItem value="IN_STOCK" className="cursor-pointer">
-                  Còn hàng (≥10)
-                </SelectItem>
-                <SelectItem value="LOW_STOCK" className="cursor-pointer">
-                  Sắp hết (&lt;10)
-                </SelectItem>
-                <SelectItem
-                  value="OUT_OF_STOCK"
-                  className="cursor-pointer text-red-600 focus:text-red-700"
-                >
-                  Hết hàng (0)
-                </SelectItem>
-              </SelectContent>
-            </Select>
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -377,7 +372,7 @@ export default function ProductsView() {
             />
             <button
               onClick={handleApplyPriceFilter}
-              className="h-9 px-3 flex items-center justify-center bg-black text-white hover:bg-gray-800 rounded-md transition-colors shadow-sm shrink-0"
+              className="h-8 px-3 flex items-center justify-center bg-black text-white hover:bg-gray-800 rounded-md transition-colors shadow-sm shrink-0"
               title="Lọc theo giá"
             >
               <Search className="w-4 h-4" />
@@ -388,97 +383,165 @@ export default function ProductsView() {
         {/* Nút & Dialog Thêm Sản Phẩm */}
         <Button
           onClick={handleOpenAdd}
-          className="flex items-center justify-center gap-2 px-5 py-6 bg-black text-white text-sm font-medium rounded-md border border-black hover:bg-white hover:text-black transition-all duration-200 w-full md:w-auto shadow-sm"
+          className="flex items-center justify-center gap-1 px-5 py-6 bg-black text-white text-sm font-medium rounded-md border border-black hover:bg-white hover:text-black transition-all duration-200 w-full md:w-auto shadow-sm"
         >
           <Plus className="w-4 h-4" />
           Thêm sản phẩm
         </Button>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="sm:max-w-sm">
+          <DialogContent className="sm:max-w-[450px] p-6">
             <form onSubmit={handleSubmit(onSubmit)}>
-              <DialogHeader>
-                <DialogTitle>
+              <DialogHeader className="mb-5">
+                <DialogTitle className="text-xl font-bold text-gray-900">
                   {editing ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}
                 </DialogTitle>
-                <div className="min-h-[10px] mt-1"></div>
               </DialogHeader>
 
-              <FieldGroup>
-                <Field>
-                  <Label htmlFor="name">
-                    Tên sản phẩm<span className="text-destructive">*</span>
+              <div className="space-y-5">
+                {/* Tên sản phẩm */}
+                <div className="flex flex-col gap-1.5">
+                  <Label
+                    htmlFor="name"
+                    className="text-sm font-semibold text-gray-700"
+                  >
+                    Tên sản phẩm <span className="text-red-500">*</span>
                   </Label>
-                  <Input id="name" {...register("name")} />
-                  <div className="min-h-[10px] mt-1">
-                    {errors.name && (
-                      <p className="text-destructive text-xs">
-                        {errors.name.message}
+                  <Input
+                    id="name"
+                    placeholder="VD: iPhone 15 Pro Max..."
+                    {...register("name")}
+                    // Đổi màu viền thành đỏ nếu có lỗi
+                    className={
+                      errors.name
+                        ? "border-red-500 focus-visible:ring-red-500"
+                        : ""
+                    }
+                  />
+                  {errors.name && (
+                    <p className="text-red-500 text-xs font-medium">
+                      {errors.name.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Mô tả chi tiết */}
+                <div className="flex flex-col gap-1.5">
+                  <Label
+                    htmlFor="description"
+                    className="text-sm font-semibold text-gray-700"
+                  >
+                    Mô tả chi tiết
+                  </Label>
+                  <Textarea
+                    id="description"
+                    placeholder="Nhập mô tả sản phẩm..."
+                    {...register("description")}
+                    className="resize-none h-24" // Cố định chiều cao, không cho kéo dãn làm hỏng layout
+                  />
+                </div>
+
+                {/* Giá và Số lượng (Chia 2 cột) */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label
+                      htmlFor="price"
+                      className="text-sm font-bold text-gray-700"
+                    >
+                      Giá (VND){" "}
+                      <span className="text-red-500 font-bold">*</span>
+                    </label>
+                    <Input
+                      id="price"
+                      type="number"
+                      placeholder="0"
+                      {...register("price")}
+                      className={
+                        errors.price
+                          ? "border-red-500 focus-visible:ring-red-500"
+                          : ""
+                      }
+                    />
+                    {errors.price && (
+                      <p className="text-red-500 text-xs font-medium">
+                        {errors.price.message}
                       </p>
                     )}
                   </div>
-                </Field>
 
-                <Field>
-                  <FieldLabel htmlFor="description">Mô tả chi tiết</FieldLabel>
-                  <Textarea
-                    id="description"
-                    placeholder="Nhập mô tả..."
-                    {...register("description")}
-                  />
-                </Field>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <Field>
-                    <FieldLabel htmlFor="price">
-                      Giá (VND)<span className="text-destructive">*</span>
-                    </FieldLabel>
-                    <Input id="price" type="number" {...register("price")} />
-                    <div className="min-h-[20px] mt-1">
-                      {errors.price && (
-                        <p className="text-destructive text-xs">
-                          {errors.price.message}
-                        </p>
-                      )}
-                    </div>
-                  </Field>
-                  <Field>
-                    <FieldLabel htmlFor="stock">
-                      Số lượng<span className="text-destructive">*</span>
-                    </FieldLabel>
-                    <Input id="stock" type="number" {...register("stock")} />
-                    <div className="min-h-[20px] mt-1">
-                      {errors.stock && (
-                        <p className="text-destructive text-xs">
-                          {errors.stock.message}
-                        </p>
-                      )}
-                    </div>
-                  </Field>
+                  <div className="flex flex-col gap-1.5">
+                    <Label
+                      htmlFor="stock"
+                      className="text-sm font-semibold text-gray-700"
+                    >
+                      Số lượng <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="stock"
+                      type="number"
+                      placeholder="0"
+                      {...register("stock")}
+                      className={
+                        errors.stock
+                          ? "border-red-500 focus-visible:ring-red-500"
+                          : ""
+                      }
+                    />
+                    {errors.stock && (
+                      <p className="text-red-500 text-xs font-medium">
+                        {errors.stock.message}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
-                <Field>
-                  <FieldLabel htmlFor="image_url">Upload ảnh</FieldLabel>
+                {/* Upload Ảnh */}
+                <div className="flex flex-col gap-1.5">
+                  <Label
+                    htmlFor="image"
+                    className="text-sm font-semibold text-gray-700"
+                  >
+                    Upload ảnh
+                  </Label>
                   <Input
                     id="image"
                     type="file"
                     accept="image/*"
                     onChange={(e) => setSelectedImage(e.target.files[0])}
+                    className="cursor-pointer file:cursor-pointer file:bg-gray-100 file:text-gray-700 file:border-0 file:rounded-md file:px-4 file:py-1 file:mr-4 file:text-sm file:font-semibold hover:file:bg-gray-200 transition-colors text-gray-500"
                   />
-                  <div className="min-h-[10px] mt-1"></div>
-                </Field>
-              </FieldGroup>
+                </div>
+              </div>
 
-              <DialogFooter>
+              {/* FOOTER */}
+              <DialogFooter className="mt-8 pt-4 border-t border-gray-100">
                 <DialogClose asChild>
                   <Button
                     variant="outline"
                     type="button"
                     onClick={() => setIsDialogOpen(false)}
+                    className="rounded-sm"
                   >
+                    <X />
                     Hủy
                   </Button>
                 </DialogClose>
-                <Button type="submit">Lưu thay đổi</Button>
+                <Button
+                  type="submit"
+                  className="bg-black rounded-sm hover:bg-gray-800 text-white min-w-[120px]"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Đang lưu...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2" />
+                      Lưu {editing ? "thay đổi" : "mới"}
+                    </>
+                  )}
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -545,7 +608,7 @@ export default function ProductsView() {
                         className={`px-2.5 py-1 inline-flex text-xs font-bold rounded-md ${
                           product.stock === 0
                             ? "bg-red-50 text-red-700 border border-red-200"
-                            : product.stock < 10
+                            : product.stock < lowStockThreshold
                               ? "bg-amber-50 text-amber-700 border border-amber-200"
                               : "bg-emerald-50 text-emerald-700 border border-emerald-200"
                         }`}
@@ -588,7 +651,7 @@ export default function ProductsView() {
           open={!!deletedProductId && isDialogOpenDelete}
           onOpenChange={(isOpen) => !isOpen && setDeletedProductId(null)}
         >
-          <AlertDialogContent size="sm">
+          <AlertDialogContent size="sm" className="rounded-sm">
             <AlertDialogHeader>
               <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
                 <Trash2Icon />
@@ -599,17 +662,21 @@ export default function ProductsView() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel variant="outline">Hủy</AlertDialogCancel>
+              <AlertDialogCancel variant="outline" className="rounded-sm">
+                <X />
+                Hủy
+              </AlertDialogCancel>
               <AlertDialogAction
                 variant="destructive"
                 onClick={() => onDelete()}
+                className="rounded-sm"
               >
+                <Trash2 />
                 Xóa
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-        {/* PHÂN TRANG: Đã bọc an toàn bằng ?. và sửa lỗi hàm handlePageChange */}
         {pagination?.totalItems > 0 && pagination?.totalPages > 1 && (
           <div className="bg-gray-50 px-6 py-3 border-t border-gray-200 flex items-center justify-between">
             <div className="hidden md:block">
@@ -655,7 +722,7 @@ export default function ProductsView() {
                       isActive={pageNum === pagination.currentPage}
                       onClick={(e) => {
                         e.preventDefault();
-                        handlePageChange(pageNum); // Đã sửa thành handlePageChange
+                        handlePageChange(pageNum);
                       }}
                     >
                       {pageNum}
@@ -675,7 +742,7 @@ export default function ProductsView() {
                     onClick={(e) => {
                       e.preventDefault();
                       if (pagination.currentPage < pagination.totalPages)
-                        handlePageChange(pagination.currentPage + 1); // Đã sửa thành handlePageChange
+                        handlePageChange(pagination.currentPage + 1);
                     }}
                     className={
                       pagination.currentPage === pagination.totalPages
