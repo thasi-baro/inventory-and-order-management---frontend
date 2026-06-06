@@ -36,7 +36,7 @@
 - Tự động hoàn kho (Restock) nếu đơn hàng bị chuyển sang trạng thái Hủy (`Cancelled`).
 - Cập nhật linh hoạt trạng thái đơn hàng: `Pending` ➔ `Completed` ➔ `Cancelled`.
 - Lưu trữ tạm thời, khi đã thêm sản phẩm vào giỏ hàng và sang trang khác thì giỏ hàng vẫn giữ thông tin đến khi quay lại trang.
-- Mỗi khi tạo đơn hàng thành công sẽ gửi mail bằng `nodemailer` với thông tin đơn hàng đến mail của khách hàng.  
+- Tích hợp `Nodemailer` tự động gửi email thông báo hóa đơn và trạng thái đơn hàng cho khách hàng.  
 
 ### 📊 4. Interactive Dashboard
 - **Theo dõi các chỉ số:** Doanh thu tháng này cùng với phần trăm tăng/giảm trưởng so với tháng trước, số lượng đơn hàng tháng này, số lượng sản phẩm 
@@ -44,7 +44,7 @@
 - **Trạng thái đơn hàng:** Biểu đồ Donut Chart trực quan hóa tỷ lệ đơn hàng.
 - **Inventory Health:** Biểu đồ Pie Chart cảnh báo hàng sắp hết/hết hàng dựa trên ngưỡng cảnh báo tùy chỉnh của người dùng.
 - **Top 5 sản phẩm bán chạy:** Theo dõi 5 sản phẩm bán chạy nhất 
-- **Tối ưu trải nghiệm:** Lưu thống kê vào **Redis cache** giảm thiểu gọi API chờ lâu, chỉ gọi lại khi có thêm/sửa/xóa dữ liệu sản phẩm/đơn hàng
+- **Tối ưu hiệu suất với Redis:** Áp dụng cơ chế Caching cho các API thống kê và tự động dọn dẹp bộ nhớ (Cache Invalidation) khi có thay đổi dữ liệu (Thêm/Sửa/Xóa), giúp Dashboard tải ngay lập tức (0ms delay).
 
 ---
 
@@ -60,10 +60,46 @@
 - Axios (HTTP Client)
 
 **Backend:**
-- Node.js & Express.js
-- MongoDB & Mongoose (Database)
-- JSON Web Token (JWT) & Bcryptjs (Auth)
-- Cloudinary & Multer (Image Storage)
-- Redis (Deploy: Ustash)
+- Node.js & Express.js (RESTful API Architecture)
+- MongoDB & Mongoose (Database & ODM)
+- JSON Web Token (JWT) & Bcryptjs (Authentication & Password Hashing)
+- Cloudinary & Multer (Image Storage & File Handling)
+- Redis (Upstash) (Caching & Performance Optimization)
+- Nodemailer (Automated Email Services)
 
 ---
+## Test account:
+- Email: 
+```bash
+bao@gmail.com
+```
+- Password:
+```bash
+111111
+```
+
+## 🚀 Hướng dẫn cài đặt chạy ở máy (Local Setup Instructions)
+
+Yêu cầu môi trường: Cài đặt sẵn **Node.js** và **MongoDB Compass** (hoặc dùng MongoDB Atlas).
+
+### Bước 1: Clone 2 kho lưu trữ về máy
+```bash
+# Clone Backend
+git clone [https://github.com/thasi-baro/inventory-and-order-management---backend.git](https://github.com/thasi-baro/inventory-and-order-management---backend.git)
+```
+```bash
+# Clone Frontend
+git clone [https://github.com/thasi-baro/inventory-and-order-management---frontend.git](https://github.com/thasi-baro/inventory-and-order-management---frontend.git)
+```
+### Bước 2: Cài đặt & Cấu hình Backend
+```bash
+cd inventory-and-order-management---backend
+npm install
+```
+### Bước 3: Tải và cài đặc file .env (Backend/.env)
+### Bước 4: Cài đặt & Cấu hình Fronend
+```bash
+cd inventory-and-order-management---frontend
+npm install
+```
+
