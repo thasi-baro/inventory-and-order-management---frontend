@@ -38,12 +38,14 @@ export default function Sidebar({ activeTab = "dashboard", onTabChange }) {
   return (
     <aside className="w-56 h-screen bg-[#F8F9FA] border-r border-gray-200 flex flex-col bg-slate-50">
       <div className="flex items-center gap-3 px-6 py-8">
-        <div className="w-10 h-10 bg-black text-white flex items-center justify-center rounded-lg font-bold text-xl">
-          E
-        </div>
+        <img
+          src="/stockManagement.png"
+          alt="E-Store Pro Logo"
+          className="h-10 w-10 object-contain rounded-lg"
+        />
         <div className="flex flex-col">
           <h2 className="text-[17px] font-bold text-gray-900 leading-tight">
-            E Store
+            E-Store Pro
           </h2>
           <span className="text-[11px] text-gray-500 font-medium">
             Enterprise v1.0

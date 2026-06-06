@@ -425,7 +425,9 @@ export default function DashboardView() {
         </div>
 
         <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-bold text-gray-900">Sức khỏe Kho hàng</h3>
+          <h3 className="text-lg font-bold text-gray-900">
+            Tình trạng kho hàng
+          </h3>
           <p className="text-xs text-gray-500 mt-1">Phân bổ tồn kho hiện tại</p>
 
           <div className="h-64 flex items-center justify-center mt-4">
