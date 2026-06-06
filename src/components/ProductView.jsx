@@ -551,19 +551,19 @@ export default function ProductsView() {
       {/* BẢNG DỮ LIỆU */}
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col">
         <div className="overflow-x-auto">
-          <table className="min-w-[800px] w-full divide-y divide-gray-200">
+          <table className="min-w-[800px] w-full divide-y divide-gray-200 bg-white">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-2/5">
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider w-2/5">
                   Sản phẩm
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider w-1/5">
+                <th className="px-6 py-3 text-center text-xs font-semibold text-slate-700 uppercase tracking-wider w-1/5">
                   Giá
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider w-1/5">
+                <th className="px-6 py-3 text-center text-xs font-semibold text-slate-700 uppercase tracking-wider w-1/5">
                   Tồn kho
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-1/5">
+                <th className="px-6 py-3 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider w-1/5">
                   Thao tác
                 </th>
               </tr>

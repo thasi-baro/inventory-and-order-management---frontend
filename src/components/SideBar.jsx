@@ -36,7 +36,7 @@ export default function Sidebar({ activeTab = "dashboard", onTabChange }) {
   ];
 
   return (
-    <aside className="w-56 h-screen bg-[#F8F9FA] border-r border-gray-200 flex flex-col">
+    <aside className="w-56 h-screen bg-[#F8F9FA] border-r border-gray-200 flex flex-col bg-slate-50">
       <div className="flex items-center gap-3 px-6 py-8">
         <div className="w-10 h-10 bg-black text-white flex items-center justify-center rounded-lg font-bold text-xl">
           E
