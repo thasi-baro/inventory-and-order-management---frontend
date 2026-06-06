@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import * as XLSX from "xlsx"; // Import thư viện xuất Excel
+import * as XLSX from "xlsx";
 import {
   AreaChart,
   Area,

@@ -43,12 +43,15 @@ export default function OrdersView() {
   const [page, setPage] = useState(1); //quản lí page hiện tại
   const limit = 5; //5 sản phẩm mỗi trang
   const [cancelOrderId, setCancelOrderId] = useState(null); //Id order muốn xóa
+
   //STOREs
   const { orders, pagination, fetchOrders, updateStatus } = useOrderStore();
+
   //EFFECTs
   useEffect(() => {
     fetchOrders(page, limit, statusFilter);
   }, [page, limit, statusFilter, fetchOrders]);
+
   //Các hàm xử lý
   // Xử lí dữ liệu Status Badge hiển thị màu UI
   const renderStatus = (status) => {
