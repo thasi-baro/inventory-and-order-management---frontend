@@ -9,8 +9,8 @@
 
 ## 🔗 Liên kết dự án (Project Links)
 
-- **🚀 Live Demo (Frontend):** `[Link Vercel/Netlify của bạn sẽ điền vào đây sau khi deploy]`
-- **⚙️ Live API (Backend):** `[Link Render/Railway của bạn sẽ điền vào đây sau khi deploy]`
+- **🚀 Live Demo (Frontend):** `https://inventory-and-order-management-fron.vercel.app/`
+- **⚙️ Live API (Backend):** `https://inventory-and-order-management-backend-5zg8.onrender.com`
 - **💻 Frontend Repository:** [thasi-baro/inventory-and-order-management---frontend](https://github.com/thasi-baro/inventory-and-order-management---frontend)
 - **🗄️ Backend Repository:** [thasi-baro/inventory-and-order-management---backend](https://github.com/thasi-baro/inventory-and-order-management---backend)
 
@@ -27,7 +27,7 @@
 ### 📦 2. Product Management
 
 - CRUD Sản phẩm toàn diện (Tên, Mô tả, Giá, Số lượng tồn kho, Hình ảnh).
-- Xem danh sách sản phẩm ( phân trang, tìm kiếm theo tên, lọc theo giá tiền).
+- Xem danh sách sản phẩm (phân trang, tìm kiếm theo tên, lọc theo giá tiền).
 - Upload hình ảnh trực tiếp lên **Cloudinary**.
 - Validation chặt chẽ form nhập liệu với `Zod` và `React Hook Form`.
 - Cảnh báo sản phẩm còn tồn kho ít theo ngưỡng (Low Stock Threshold) mà người dùng tùy chỉnh.
@@ -35,7 +35,7 @@
 ### 🛒 3. Order & Inventory Management
 
 - Khởi tạo đơn hàng từ danh sách sản phẩm hiện có.
-- Xem danh sách đơn hàng ( phân trang, lọc theo trạng thái đơn hàng).
+- Xem danh sách đơn hàng (phân trang, lọc theo trạng thái đơn hàng).
 - Hệ thống tự động trừ số lượng tồn kho (Auto-deduct stock) khi tạo đơn hàng thành công.
 - Tự động hoàn kho (Restock) nếu đơn hàng bị chuyển sang trạng thái Hủy (`Cancelled`).
 - Cập nhật linh hoạt trạng thái đơn hàng: `Pending` ➔ `Completed` ➔ `Cancelled`.
@@ -92,7 +92,7 @@ bao@gmail.com
 
 ## 🚀 Hướng dẫn cài đặt chạy ở máy (Local Setup Instructions)
 
-Yêu cầu môi trường: Cài đặt sẵn **Node.js** và **MongoDB Compass** (hoặc dùng MongoDB Atlas).
+Yêu cầu môi trường: Cài đặt sẵn **Node.js** 
 
 ### Bước 1: Clone 2 kho lưu trữ về máy
 
