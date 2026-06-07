@@ -54,26 +54,35 @@ export default function OrdersView() {
 
   //Các hàm xử lý
   // Xử lí dữ liệu Status Badge hiển thị màu UI
+  // Xử lý dữ liệu Status Badge hiển thị màu UI (Phong cách Opacity)
   const renderStatus = (status) => {
     const statusConfig = {
       pending: {
         color:
-          "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+          "bg-amber-500/20 text-amber-600/90 dark:bg-amber-500/20 dark:text-amber-400",
         text: "Pending",
       },
       completed: {
         color:
-          "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300",
+          "bg-emerald-500/20 text-emerald-600/90 dark:bg-emerald-500/20 dark:text-emerald-400",
         text: "Completed",
       },
       cancelled: {
-        color: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
+        color:
+          "bg-red-500/20 text-red-600/90 dark:bg-red-500/20 dark:text-red-400",
         text: "Cancelled",
       },
     };
+
     const current = statusConfig[status] || statusConfig.pending;
 
-    return <Badge className={current.color}>{current.text}</Badge>;
+    return (
+      <Badge
+        className={`border-0 uppercase tracking-wider text-[10px] rounded-md px-2.5 py-1 font-bold ${current.color}`}
+      >
+        {current.text}
+      </Badge>
+    );
   };
 
   // Format Ngày tháng từ MongoDB
@@ -160,7 +169,7 @@ export default function OrdersView() {
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-[10%] pl-6">
                   Trạng thái
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase w-[5%]">
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase w-[7%]">
                   Thao tác
                 </th>
               </tr>
@@ -342,7 +351,7 @@ export default function OrdersView() {
         open={!!cancelOrderId}
         onOpenChange={(isOpen) => !isOpen && setCancelOrderId(null)}
       >
-        <AlertDialogContent className="rounded-sm">
+        <AlertDialogContent className="!rounded-md">
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận hủy đơn hàng này?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -356,11 +365,11 @@ export default function OrdersView() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-sm">
+            <AlertDialogCancel className="!rounded-md">
               Quay lại
             </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-red-600 hover:bg-red-700 rounded-sm"
+              className="bg-red-600 hover:bg-red-700 !rounded-md"
               onClick={() => handleUpdateStatus(cancelOrderId, "cancelled")}
             >
               Xác nhận Hủy

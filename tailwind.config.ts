@@ -85,6 +85,7 @@ export default {
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
         heading: ["Inter", "system-ui", "sans-serif"],
+        
       },
       borderRadius: {
         lg: "var(--radius)",

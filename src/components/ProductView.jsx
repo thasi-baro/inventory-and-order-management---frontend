@@ -298,36 +298,35 @@ export default function ProductsView() {
           </div>
         </div>
       </div>
-      {/* Thanh công cụ (tìm kiếm lọc & thêm sản phẩm) */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+      {/* THANH CÔNG CỤ (TÌM KIẾM, LỌC & THÊM SẢN PHẨM) */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm w-full">
+        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto flex-1">
           {/* Ô Tìm kiếm */}
-          <Field orientation="horizontal">
-            <Input
-              type="search"
-              placeholder="Nhập tên sản phẩm..."
-              value={localSearch}
-              onChange={(e) => setLocalSearch(e.target.value)}
-            />
-          </Field>
+          <div className="w-full sm:w-auto sm:max-w-xs flex-grow">
+            <Field orientation="horizontal">
+              <Input
+                type="search"
+                placeholder="Nhập tên sản phẩm..."
+                value={localSearch}
+                onChange={(e) => setLocalSearch(e.target.value)}
+                className="w-full bg-gray-50 focus-visible:bg-white"
+              />
+            </Field>
+          </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <span className="text-sm font-medium text-gray-700 hidden sm:block whitespace-nowrap">
-              Lọc theo trạng thái:
+          {/* Lọc Trạng thái */}
+          <div className="flex items-center gap-2 w-full sm:w-auto flex-grow sm:flex-grow-0">
+            <span className="text-sm font-medium text-gray-700 whitespace-nowrap hidden sm:block">
+              Trạng thái:
             </span>
-
-            <div className="relative w-full sm:w-48">
-              {/* Icon Filter */}
+            <div className="relative w-full sm:w-44">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                 <Filter className="h-4 w-4 text-gray-400" />
               </div>
-
-              {/* Select Dropdown */}
               <Select onValueChange={handleFilterChange} value={statusFilter}>
                 <SelectTrigger className="w-full pl-9 bg-gray-50 border-gray-200">
                   <SelectValue placeholder="Tất cả trạng thái" />
                 </SelectTrigger>
-
                 <SelectContent>
                   <SelectItem value="ALL" className="cursor-pointer">
                     Tất cả trạng thái
@@ -340,7 +339,7 @@ export default function ProductsView() {
                   </SelectItem>
                   <SelectItem
                     value="OUT_OF_STOCK"
-                    className="cursor-pointer text-red-600 focus:text-red-700"
+                    className="cursor-pointer text-red-600"
                   >
                     Hết hàng (0)
                   </SelectItem>
@@ -349,8 +348,9 @@ export default function ProductsView() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <span className="text-sm font-medium text-gray-500 whitespace-nowrap hidden lg:block">
+          {/* Lọc Giá */}
+          <div className="flex items-center gap-1 w-full sm:w-auto">
+            <span className="text-sm font-medium text-gray-500 whitespace-nowrap hidden lg:block mr-1">
               Giá:
             </span>
             <Input
@@ -359,7 +359,7 @@ export default function ProductsView() {
               placeholder="Từ..."
               value={localFromPrice}
               onChange={(e) => setLocalFromPrice(e.target.value)}
-              className="w-full sm:w-24 lg:w-32 bg-gray-50 focus:bg-white"
+              className="w-full sm:w-20 lg:w-24 bg-gray-50 focus:bg-white"
             />
             <span className="text-gray-400">-</span>
             <Input
@@ -368,26 +368,26 @@ export default function ProductsView() {
               placeholder="Đến..."
               value={localToPrice}
               onChange={(e) => setLocalToPrice(e.target.value)}
-              className="w-full sm:w-24 lg:w-32 bg-gray-50 focus:bg-white"
+              className="w-full sm:w-20 lg:w-24 bg-gray-50 focus:bg-white"
             />
             <button
               onClick={handleApplyPriceFilter}
-              className="h-8 px-3 flex items-center justify-center bg-black text-white hover:bg-gray-800 rounded-md transition-colors shadow-sm shrink-0"
-              title="Lọc theo giá"
+              className="h-9 w-10 flex items-center justify-center bg-gray-900 text-white hover:bg-gray-800 rounded-md transition-colors shadow-sm shrink-0"
             >
               <Search className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* Nút & Dialog Thêm Sản Phẩm */}
+        {/* Nút Thêm Sản Phẩm  */}
         <Button
           onClick={handleOpenAdd}
-          className="flex items-center justify-center gap-1 px-5 py-6 bg-black text-white text-sm font-medium rounded-md border border-black hover:bg-white hover:text-black transition-all duration-200 w-full md:w-auto shadow-sm"
+          className="flex items-center justify-center gap-2 h-10 px-5 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors w-full lg:w-auto shrink-0 shadow-sm"
         >
           <Plus className="w-4 h-4" />
           Thêm sản phẩm
         </Button>
+
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent className="sm:max-w-[450px] p-6">
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -519,7 +519,7 @@ export default function ProductsView() {
                     variant="outline"
                     type="button"
                     onClick={() => setIsDialogOpen(false)}
-                    className="rounded-sm"
+                    className="rounded-md"
                   >
                     <X />
                     Hủy
@@ -527,7 +527,7 @@ export default function ProductsView() {
                 </DialogClose>
                 <Button
                   type="submit"
-                  className="bg-black rounded-sm hover:bg-gray-800 text-white min-w-[120px]"
+                  className="bg-black rounded-md hover:bg-gray-800 text-white min-w-[120px]"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (

@@ -208,20 +208,23 @@ export default function DashboardView() {
       </div>
       {/* Thông tin các thẻ */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white border border-gray-200 rounded-lg p-4">
-          <div className="flex justify-between items-start mb-1">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+        {/* Thẻ Doanh Thu */}
+        <div className="bg-white border border-gray-200 rounded-lg p-4 flex flex-col justify-center">
+          <div className="flex justify-between items-start mb-2">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider line-clamp-1 pr-2">
               Doanh thu tháng này
             </p>
-            <DollarSign className="w-4 h-4 text-gray-400" />
+            <DollarSign className="w-4 h-4 text-gray-400 shrink-0" />
           </div>
-          <div className="flex items-baseline gap-2">
-            <h3 className="text-2xl font-bold text-gray-900">
+
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <h3 className="text-xl xl:text-2xl font-bold text-gray-900 break-all sm:break-normal">
               {thisMonthRevenue?.toLocaleString("vi-VN")} đ
             </h3>
+
             {percentage !== undefined && (
               <span
-                className={`flex items-center text-sm font-medium ${
+                className={`flex items-center text-sm font-medium whitespace-nowrap shrink-0 ${
                   percentage >= 0 ? "text-emerald-600" : "text-red-500"
                 }`}
               >
