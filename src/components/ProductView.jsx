@@ -651,7 +651,7 @@ export default function ProductsView() {
           open={!!deletedProductId && isDialogOpenDelete}
           onOpenChange={(isOpen) => !isOpen && setDeletedProductId(null)}
         >
-          <AlertDialogContent size="sm" className="rounded-sm">
+          <AlertDialogContent size="sm" className="!rounded-md">
             <AlertDialogHeader>
               <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
                 <Trash2Icon />
@@ -662,14 +662,14 @@ export default function ProductsView() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel variant="outline" className="rounded-sm">
+              <AlertDialogCancel variant="outline" className="!rounded-md">
                 <X />
                 Hủy
               </AlertDialogCancel>
               <AlertDialogAction
                 variant="destructive"
                 onClick={() => onDelete()}
-                className="rounded-sm"
+                className="!rounded-md"
               >
                 <Trash2 />
                 Xóa

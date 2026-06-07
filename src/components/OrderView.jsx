@@ -169,7 +169,7 @@ export default function OrdersView() {
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase w-[10%] pl-6">
                   Trạng thái
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase w-[7%]">
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase w-[8%]">
                   Thao tác
                 </th>
               </tr>
